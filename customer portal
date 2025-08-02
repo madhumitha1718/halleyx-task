@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hartha Mart</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom right, lavender, purple);
+      color: #333;
+    }
+    header {
+      background-color: #fff;
+      color: purple;
+      text-align: center;
+      padding: 1rem;
+      font-size: 2rem;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    }
+    input[type="text"], input[type="email"], input[type="password"] {
+      width: 100%;
+      padding: 0.8rem;
+      margin: 0.5rem 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background: purple;
+      color: white;
+      padding: 0.8rem 1.2rem;
+      border: none;
+      border-radius: 6px;
+      margin: 0.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: 0.3s ease;
+    }
+    button:hover {
+      box-shadow: 0 0 10px #fff, 0 0 20px violet;
+    }
+    .section {
+      margin-top: 2rem;
+    }
+    .product {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+      display: flex;
+      align-items: center;
+    }
+    .product img {
+      width: 90px;
+      height: 90px;
+      border-radius: 4px;
+      margin-right: 1rem;
+    }
+    .heart {
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: #ccc;
+    }
+    .heart.liked {
+      color: red;
+    }
+    .offers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .offer-box {
+      background: #f8f2ff;
+      border: 1px solid #d1c4e9;
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .offer-box img {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 0.5rem;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>Welcome to Hartha Mart</header>
+  <div id="app" class="container"></div>
+
+  <script>
+    const app = document.getElementById("app");
+    let user = {};
+    let wishlist = [];
+    let orders = [];
+
+    const categories = {
+      Electronics: [
+        { name: "Mobil Phones", price: 24000, image: "https://www.livemint.com/lm-img/img/2024/12/08/600x338/GeHA846akAQlOlV_1733637971463_1733637981986.jpg" },
+        { name: "Laptop", price: 47000, image: "https://cdn.thewirecutter.com/wp-content/media/2024/11/cheapgaminglaptops-2048px-7981.jpg?auto=webp&quality=75&width=1024" },
+        { name: "TV", price: 50000, image: "https://amstradworld.com/wp-content/uploads/2023/12/Amstrad-AM65UWGTA-WebOS-TV_front.jpg" },
+        { name: "Camera", price: 120000, image: "https://images-cdn.ubuy.co.in/65fe64a89de64a706c0120dc-canon-eos-5d-mark-iv-dslr-camera-with.jpg" },
+        { name: "Tablet", price: 80000, image: "https://p3-ofp.static.pub/fes/cms/2023/02/22/5rhddw9d8vm9xfkexcwzvvi9lindg8985574.png" },
+      ],
+      Clothing: [
+        { name: "Shirt", price: 500, image: "https://blendstrendz.com/cdn/shop/files/Snapinsta.app_435444747_283618194831691_579591719456263215_n_1080.jpg?v=1716991702" },
+        { name: "Jeans", price: 900, image: "https://hips.hearstapps.com/vader-prod.s3.amazonaws.com/1736527960-untitled-3-67815035563fa.jpg?crop=0.774xw:0.830xh;0.111xw,0.0871xh&resize=980:*" },
+        { name: "Jacket", price: 1500, image: "https://m.media-amazon.com/images/I/81T9vdBTX8L._UY1100_.jpg" },
+        { name: "kurti", price: 800, image: "https://www.asthanarang.com/cdn/shop/files/UntitledSession2772.jpg?v=1739772865&width=1080" },
+        { name: "T-Shirt", price: 200, image: "https://a.storyblok.com/f/165154/1280x720/e109674405/1_hero-image.jpg/m/" },
+      ],
+      Beauty: [
+        { name: "Lipstick", price: 800, image: "https://www.lakmeindia.com/cdn/shop/files/24846_H-890103098578.jpg?v=1737700034" },
+        { name: "Mascara", price: 400, image: "https://m.media-amazon.com/images/I/61YdJezaNRL._UF1000,1000_QL80_.jpg" },
+        { name: "Blush", price: 200, image: "https://cdn.fynd.com/v2/falling-surf-7c8bb8/fyprod/wrkr/products/pictures/item/free/original/000000000494434101/7BKyZE8jSO-000000000494434101_1.jpg" },
+        { name: "Face Cream", price: 350, image: "https://vasustore.com/cdn/shop/products/3_69f07ef4-a8f0-4983-8384-f7636197e324.jpg?v=1672744474" },
+        { name: "Compact Powder", price: 400, image: "https://m.media-amazon.com/images/I/61HK1LAqaoL.jpg" },
+      ],
+      Stationery: [
+        { name: "Pen", price: 50, image: "https://www.tinyminymo.com/cdn/shop/files/Hello-Kawaii-Gel-Pens-Set-of-6-28.png?v=1745579528" },
+        { name: "Notebook", price: 350, image: "https://m.media-amazon.com/images/I/718vM+75UNL._UF1000,1000_QL80_.jpg" },
+        { name: "Marker", price: 75, image: "https://shop.crayola.com/dw/image/v2/AALB_PRD/on/demandware.static/-/Sites-crayola-storefront/default/dwf121bf99/images/58-8201-0-810_Markers_Broadline_Classpack_256ct_16-Colors_C1(1).jpg?sw=790&sh=790&sm=fit&sfrm=jpg" },
+        { name: "Highlighter", price: 50, image: "https://m.media-amazon.com/images/I/61DNYutKanL._UF1000,1000_QL80_.jpg" },
+        { name: "Folder", price: 150, image: "https://buysupplies.in/cdn/shop/products/infinity-stationery-inf-cf720-cheque-folder-authorized-distributors-wholesaler-bulk-order-shop-buy-online-supplier-best-lowest-cheapest-factory-price-dealers-alappuzha-kerala.jpg?v=1607595575" },
+      ],
+      Toys: [
+        { name: "Talking Bear", price: 860, image: "https://m.media-amazon.com/images/I/713+sB6SJkL.jpg" },
+        { name: "Blocks", price: 500, image: "https://images-cdn.ubuy.co.in/65e4e2924d21d152501a6e14-961-pcs-building-blocks-set-educational.jpg" },
+        { name: "Sleepin Teddy", price: 300, image: "https://images.meesho.com/images/products/471995889/ukrud_512.jpg" },
+        { name: "Remote Car", price: 1500, image: "https://images.meesho.com/images/products/456902277/qjbhq_512.jpg" },
+        { name: "Doll", price: 1000, image: "https://images.jdmagicbox.com/quickquotes/images_main/barbie_doll_accessories_cdb20__17199937_3.jpg" },
+      ],
+      Kitchen: [
+        { name: "Pan", price: 650, image: "https://m.media-amazon.com/images/I/716KR8EtZJL.jpg" },
+        { name: "Spoon Set", price: 1200, image: "https://m.media-amazon.com/images/I/81aXlovBKVL._UF350,350_QL80_.jpg" },
+        { name: "Knife", price: 500, image: "https://m.media-amazon.com/images/I/51rIuzHdI+L._UF894,1000_QL80_.jpg" },
+        { name: "Bowl", price: 900, image: "https://zishta.com/cdn/shop/files/Neem-Wood-Serving-Bowl-Zishta-350-760999.png?v=1751696136&width=1500" },
+        { name: "Cup", price: 450, image: "https://i.etsystatic.com/49535800/r/il/4d5d19/6637394543/il_300x300.6637394543_eqc6.jpg" },
+      ]
+    };
+
+    const offers = [
+      { category: "Electronics", image: "https://innovationmanagement.se/wp-content/uploads/2009/09/tips-for-innovative-ideas-from-electronics-technology-industry.jpg", text: "20% Off on Electronics" },
+      { category: "Clothing", image: "https://filohevis.com/cdn/shop/files/Sky-Wine_d0d1fcc5-77c5-4c3a-9861-6c92bad5841b.jpg?v=1732965446", text: "Buy 1 Get 1" },
+      { category: "Beauty", image: "https://5.imimg.com/data5/SELLER/Default/2022/6/OC/HB/WI/154219901/travel-kit1.jpg", text: "Flat 25% Off" },
+      { category: "Stationery", image: "https://images-cdn.ubuy.co.in/634ed56f7a20f207763a01b9-fusion-kawaii-wonderful-japanese.jpg", text: "20% Off" },
+      { category: "Toys", image: "https://media.npr.org/assets/img/2022/09/15/toyhall-group-22-1024x531_custom-ae8f3ece06c2873698a38b9229c983878d4c3939.jpg?s=1100&c=50&f=jpeg", text: "Up to 30% on Toys" },
+      { category: "Kitchen", image: "https://bergnerhome.in/cdn/shop/articles/Header-Banner-1.png?v=1718542473&width=2048", text: "Best Deals on Kitchenware" },
+      { category: "Electronics", image: "https://images.indianexpress.com/2024/06/Lenovo-Tab-Plus.jpeg", text: "Tablet Combo Sale" },
+      { category: "Clothing", image: "https://www.shutterstock.com/shutterstock/photos/393230242/display_1500/stock-vector-super-sale-clothing-and-accessories-banner-sale-background-big-sale-sale-tag-sale-poster-sale-393230242.jpg", text: "50% Off on Dresses" }
+    ];
+
+    function showHome() {
+      app.innerHTML = `
+        <h2>Register to Hartha Mart</h2>
+        <input type="text" placeholder="Full Name" id="name" />
+        <input type="email" placeholder="Email" id="email" />
+        <input type="password" placeholder="Password" id="password" />
+        <button onclick="register()">Register</button>
+      `;
+    }
+
+    function register() {
+      user.name = document.getElementById("name").value;
+      user.email = document.getElementById("email").value;
+      user.password = document.getElementById("password").value;
+      showDashboard();
+    }
+
+    function showDashboard() {
+      app.innerHTML = `
+        <h2>Welcome Hartha World</h2>
+        <div class="search-bar">
+      <input type="text" placeholder="🔍Search products...">
+      </div>
+
+        <button onclick="showProfile()">Profile</button>
+        <button onclick="showCategories()">Products</button>
+        <button onclick="showWishlist()">Wishlist (${wishlist.length})</button>
+        <button onclick="showOrders()">Orders (${orders.length})</button>
+
+        <div class="section">
+          <h3>Today's Offers</h3>
+          <div class="offers-grid">
+            ${offers.map(o => `
+              <div class="offer-box" onclick="showProducts('${o.category}')">
+                <img src="${o.image}" alt="" />
+                <p>${o.text}</p>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function showProfile() {
+      app.innerHTML = `
+        <h2>Profile</h2>
+        <p><strong>Name:</strong> ${user.name}</p>
+        <p><strong>Email:</strong> ${user.email}</p>
+        <button onclick="showDashboard()">Back</button>
+        <button onclick="showHome()">Logout</button>
+      `;
+    }
+
+    function showCategories() {
+      app.innerHTML = `
+        <h2>Select a Category</h2>
+        ${Object.keys(categories).map(cat => `
+          <button onclick="showProducts('${cat}')">${cat}</button>
+        `).join('')}
+        <button onclick="showDashboard()">Back</button>
+      `;
+    }
+
+    function showProducts(category) {
+      const products = categories[category];
+      app.innerHTML = `
+        <h2>${category} Products</h2>
+        ${products.map(p => `
+          <div class="product">
+            <img src="${p.image}" />
+            <div>
+              <h4>${p.name}</h4>
+              <p>$${p.price}</p>
+              <button onclick="addOrder('${category}', '${p.name}')">Buy Now</button>
+              <span class="heart ${wishlist.find(w => w.name === p.name) ? 'liked' : ''}" onclick="toggleWishlist('${category}', '${p.name}', this)">&#10084;</span>
+            </div>
+          </div>
+        `).join('')}
+        <button onclick="showCategories()">Back</button>
+      `;
+    }
+
+    function toggleWishlist(category, productName, el) {
+      const product = categories[category].find(p => p.name === productName);
+      const exists = wishlist.find(w => w.name === product.name);
+      if (exists) {
+        wishlist = wishlist.filter(w => w.name !== product.name);
+        el.classList.remove("liked");
+      } else {
+        wishlist.push(product);
+        el.classList.add("liked");
+      }
+    }
+
+    function addOrder(category, productName) {
+      const product = categories[category].find(p => p.name === productName);
+      orders.push(product);
+      alert("Order placed for " + product.name);
+    }
+
+    function showWishlist() {
+      app.innerHTML = `
+        <h2>Wishlist (${wishlist.length})</h2>
+        ${wishlist.map(p => `
+          <div class="product">
+            <img src="${p.image}" />
+            <div>
+              <h4>${p.name}</h4>
+              <p>$${p.price}</p>
+              <button onclick="addOrderFromWishlist('${p.name}')">Buy Now</button>
+            </div>
+          </div>
+        `).join('') || '<p>No items in wishlist.</p>'}
+        <button onclick="showDashboard()">Back</button>
+      `;
+    }
+
+    function addOrderFromWishlist(name) {
+      const p = wishlist.find(i => i.name === name);
+      orders.push(p);
+      alert("Ordered " + p.name);
+    }
+
+    function showOrders() {
+      app.innerHTML = `
+        <h2>Your Orders (${orders.length})</h2>
+        ${orders.map(p => `
+          <div class="product">
+            <img src="${p.image}" />
+            <div>
+              <h4>${p.name}</h4>
+              <p>$${p.price}</p>
+            </div>
+          </div>
+        `).join('') || '<p>No orders yet.</p>'}
+        <button onclick="showDashboard()">Back</button>
+      `;
+    }
+
+    showHome();
+  </script>
+</body>
+</html>
